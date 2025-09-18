@@ -1,27 +1,21 @@
 const express = require("express");
+const cors = require("cors");
 const { Pool } = require("pg");
 
 const app = express();
 app.use(express.json());
+app.use(cors()); // Allow frontend requests
 
-// Environment variables with defaults
-const {
-  DB_HOST = "localhost",
-  DB_USER = "user",
-  DB_PASSWORD = "pass",
-  DB_NAME = "mydb",
-  DB_PORT = 5432
-} = process.env;
-
-// Connect to PostgreSQL
+// PostgreSQL connection
 const pool = new Pool({
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_NAME,
-  port: DB_PORT
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "user",
+  password: process.env.DB_PASSWORD || "pass",
+  database: process.env.DB_NAME || "mydb",
+  port: process.env.DB_PORT || 5432,
 });
 
+// Test backend
 app.get("/", (req, res) => {
   res.send("Backend is running with PostgreSQL 🚀");
 });
@@ -41,14 +35,18 @@ app.get("/users", async (req, res) => {
 app.post("/users", async (req, res) => {
   const { name } = req.body;
   try {
-    await pool.query("INSERT INTO users (name) VALUES ($1)", [name]);
-    res.send("User added ✅");
+    const result = await pool.query(
+      "INSERT INTO users (name) VALUES ($1) RETURNING *",
+      [name]
+    );
+    res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error inserting into database");
   }
 });
 
-app.listen(5000, () => {
-  console.log("Backend running on port 5000");
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
 });
