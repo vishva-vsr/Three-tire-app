@@ -21,7 +21,7 @@ services:
       - "3000:3000"
 
   postgres:
-    image: postgres:13 
+    image: 18rc1-alpine3.22
     container_name: three-tier-postgres
     restart: always
     environment:
