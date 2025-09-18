@@ -1,29 +1,45 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const { Pool } = require("pg");
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://mongo:27017/testdb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
-
-const itemSchema = new mongoose.Schema({ name: String });
-const Item = mongoose.model('Item', itemSchema);
-
-app.get('/items', async (req, res) => {
-  const items = await Item.find();
-  res.json(items);
+// connect to PostgreSQL
+const pool = new Pool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "user",
+  password: process.env.DB_PASSWORD || "pass",
+  database: process.env.DB_NAME || "mydb",
+  port: 5432,
 });
 
-app.post('/items', async (req, res) => {
-  const newItem = new Item(req.body);
-  await newItem.save();
-  res.json(newItem);
+app.get("/", (req, res) => {
+  res.send("Backend is running with PostgreSQL 🚀");
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+// Example API: get all users
+app.get("/users", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error querying database");
+  }
+});
+
+// Example API: add a user
+app.post("/users", async (req, res) => {
+  const { name } = req.body;
+  try {
+    await pool.query("INSERT INTO users (name) VALUES ($1)", [name]);
+    res.send("User added ✅");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error inserting into database");
+  }
+});
+
+app.listen(5000, () => {
+  console.log("Backend running on port 5000");
+});

@@ -1,28 +1,37 @@
-version: '3'
 services:
-  mongo:
-    image: docker pull mongodb/mongodb-community-server:8.2.0-rc4-ubi8
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
   backend:
     build: ./backend
-    container_name: backend
+    container_name: three-tier-backend
+    restart: always
     ports:
       - "5000:5000"
     depends_on:
-      - mongo
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_USER: user
+      DB_PASSWORD: pass
+      DB_NAME: mydb
 
   frontend:
     build: ./frontend
-    container_name: frontend
+    container_name: three-tier-frontend
+    restart: always
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
+
+  postgres:
+    image: postgres:15
+    container_name: three-tier-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mongo-data:
+  postgres_data:
