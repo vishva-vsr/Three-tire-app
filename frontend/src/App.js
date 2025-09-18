@@ -1,41 +1,46 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [name, setName] = useState("");
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   useEffect(() => {
-    fetch(`${API_URL}/api/users`)
-      .then(res => res.json())
-      .then(data => setUsers(data))
-      .catch(err => console.error("Fetch error:", err));
+    fetch(`${API_URL}/api/todos`)
+      .then((res) => res.json())
+      .then((data) => setTodos(data))
+      .catch((err) => console.error(err));
   }, []);
 
-  const addUser = async () => {
+  const addTodo = async () => {
     if (!name) return;
-    try {
-      const res = await fetch(`${API_URL}/api/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
-      const newUser = await res.json();
-      setUsers([...users, newUser]);
-      setName('');
-    } catch (err) {
-      console.error("Add user error:", err);
-    }
+    const res = await fetch(`${API_URL}/api/todos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    const newTodo = await res.json();
+    setTodos([...todos, newTodo]);
+    setName("");
   };
 
   return (
-    <div>
-      <h1>3-Tier App</h1>
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-      <button onClick={addUser}>Add User</button>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>MongoDB MERN Lite Todo</h1>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Todo name"
+        style={{ padding: "5px", marginRight: "10px" }}
+      />
+      <button onClick={addTodo} style={{ padding: "5px 10px" }}>
+        Add
+      </button>
       <ul>
-        {users.map((user, i) => <li key={i}>{user.name}</li>)}
+        {todos.map((todo) => (
+          <li key={todo._id}>{todo.name}</li>
+        ))}
       </ul>
     </div>
   );
