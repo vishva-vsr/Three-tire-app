@@ -1,7 +1,7 @@
 version: '3'
 services:
   mongo:
-    image: mongo:7
+    image: docker pull mongodb/signatures:sha256-dd289b174e8bcd0e01ab387b78d83b41b75a72ffeab04b853fcf91eeb63b10d5.sig
     container_name: mongo
     ports:
       - "27017:27017"
