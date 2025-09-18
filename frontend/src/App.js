@@ -1,55 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 function App() {
   const [items, setItems] = useState([]);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
 
-  // Use environment variable, fallback to localhost
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  // Fetch all items on mount
   useEffect(() => {
     fetch(`${API_URL}/users`)
       .then(res => res.json())
       .then(data => setItems(data))
-      .catch(err => console.error('Error fetching items:', err));
+      .catch(err => console.error(err));
   }, [API_URL]);
 
-  // Add a new item
   const addItem = async () => {
-    if (!name) return;
-    try {
-      const res = await fetch(`${API_URL}/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
-      if (!res.ok) throw new Error('Failed to add item');
-      setItems([...items, { name }]);
-      setName('');
-    } catch (err) {
-      console.error('Error adding item:', err);
-    }
+    const res = await fetch(`${API_URL}/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    const newItem = await res.json();
+    setItems([...items, newItem]);
+    setName("");
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ padding: "20px" }}>
       <h1>3-Tier App</h1>
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Item Name"
-          style={{ padding: '5px', marginRight: '5px' }}
-        />
-        <button onClick={addItem} style={{ padding: '5px 10px' }}>
-          Add Item
-        </button>
-      </div>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="User Name"
+      />
+      <button onClick={addItem}>Add User</button>
       <ul>
-        {items.map((item, index) => (
-          <li key={index}>{item.name}</li>
+        {items.map((item) => (
+          <li key={item.id}>{item.name}</li>
         ))}
       </ul>
     </div>
