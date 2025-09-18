@@ -1,7 +1,7 @@
 version: '3'
 services:
   mongo:
-    image: mongo:6.0
+    image: docker pull mongodb/mongodb-community-server:8.2.0-rc4-ubi8
     container_name: mongo
     ports:
       - "27017:27017"
