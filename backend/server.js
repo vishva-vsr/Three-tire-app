@@ -4,20 +4,29 @@ const { Pool } = require("pg");
 const app = express();
 app.use(express.json());
 
-// connect to PostgreSQL
+// Environment variables with defaults
+const {
+  DB_HOST = "localhost",
+  DB_USER = "user",
+  DB_PASSWORD = "pass",
+  DB_NAME = "mydb",
+  DB_PORT = 5432
+} = process.env;
+
+// Connect to PostgreSQL
 const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "user",
-  password: process.env.DB_PASSWORD || "pass",
-  database: process.env.DB_NAME || "mydb",
-  port: 5432,
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
+  port: DB_PORT
 });
 
 app.get("/", (req, res) => {
   res.send("Backend is running with PostgreSQL 🚀");
 });
 
-// Example API: get all users
+// Get all users
 app.get("/users", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users");
@@ -28,7 +37,7 @@ app.get("/users", async (req, res) => {
   }
 });
 
-// Example API: add a user
+// Add a user
 app.post("/users", async (req, res) => {
   const { name } = req.body;
   try {
