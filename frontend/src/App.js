@@ -4,7 +4,7 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [name, setName] = useState("");
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const API_URL = process.env.REACT_APP_API_URL || "http://mern-backend:5000";
 
   useEffect(() => {
     fetch(`${API_URL}/api/todos`)
