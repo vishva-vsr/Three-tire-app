@@ -4,20 +4,29 @@ const { Pool } = require("pg");
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // Allow frontend requests
+app.use(cors());
 
 // PostgreSQL connection
 const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || "postgres",
   user: process.env.DB_USER || "user",
   password: process.env.DB_PASSWORD || "pass",
   database: process.env.DB_NAME || "mydb",
   port: process.env.DB_PORT || 5432,
 });
 
-// Test backend
+// Create users table if it doesn't exist
+pool.query(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+  );
+`).then(() => console.log("Users table ready"))
+  .catch(err => console.error("Error creating table:", err));
+
+// Test route
 app.get("/", (req, res) => {
-  res.send("Backend is running with PostgreSQL 🚀");
+  res.send("Backend running 🚀");
 });
 
 // Get all users
@@ -27,7 +36,7 @@ app.get("/users", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error querying database");
+    res.status(500).send("Database error");
   }
 });
 
@@ -42,11 +51,9 @@ app.post("/users", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error inserting into database");
+    res.status(500).send("Database error");
   }
 });
 
 const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Backend on port ${PORT}`));
