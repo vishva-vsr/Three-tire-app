@@ -21,7 +21,7 @@ services:
       - "3000:3000"
 
   postgres:
-    image: postgres:13-trixie
+    image: postgres:13 
     container_name: three-tier-postgres
     restart: always
     environment:
